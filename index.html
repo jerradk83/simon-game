@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Simon - The Classic Electronic Memory Game</title>
+  <meta name="description" content="Play the classic Simon electronic memory game online. Test your memory with light and sound sequences!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%2312151d%22 stroke=%22%23333%22 stroke-width=%224%22/><path d=%22M 50 10 A 40 40 0 0 1 90 50 L 50 50 Z%22 fill=%22%23ff1744%22/><path d=%22M 10 50 A 40 40 0 0 1 50 10 L 50 50 Z%22 fill=%22%2300e676%22/><path d=%22M 10 50 A 40 40 0 0 0 50 90 L 50 50 Z%22 fill=%22%23ffd600%22/><path d=%22M 50 90 A 40 40 0 0 0 90 50 L 50 50 Z%22 fill=%22%2300b0ff%22/><circle cx=%2250%22 cy=%2250%22 r=%2222%22 fill=%22%231a1e28%22/></svg>">
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="game-wrapper">
+    <!-- Header -->
+    <header class="game-header">
+      <h1 class="logo-title">
+        <span class="logo-s">S</span><span class="logo-i">I</span><span class="logo-m">M</span><span class="logo-o">O</span><span class="logo-n">N</span>
+      </h1>
+      <p class="tagline">LIGHT & SOUND MEMORY CHALLENGE</p>
+    </header>
+
+    <!-- Score & Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="stat-label">ROUND</span>
+        <div class="stat-value led-display" id="round-display">--</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">HIGH SCORE</span>
+        <div class="stat-value led-display" id="high-score-display">00</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">LIVES</span>
+        <div class="stat-value lives-display" id="lives-display">❤️❤️❤️</div>
+      </div>
+    </div>
+
+    <!-- Simon Console Board -->
+    <div class="simon-board-container">
+      <div class="simon-board" id="simon-board">
+        <!-- 4 Quadrant Colored Buttons -->
+        <!-- Green: Top Left (Q / W) -->
+        <button class="pad green-pad" id="green" data-color="green" data-key="Q" aria-label="Green Button (Key Q)">
+          <span class="key-badge">Q</span>
+          <div class="pad-shine"></div>
+        </button>
+
+        <!-- Red: Top Right (E / W) -->
+        <button class="pad red-pad" id="red" data-color="red" data-key="W" aria-label="Red Button (Key W)">
+          <span class="key-badge">W</span>
+          <div class="pad-shine"></div>
+        </button>
+
+        <!-- Yellow: Bottom Left (A) -->
+        <button class="pad yellow-pad" id="yellow" data-color="yellow" data-key="A" aria-label="Yellow Button (Key A)">
+          <span class="key-badge">A</span>
+          <div class="pad-shine"></div>
+        </button>
+
+        <!-- Blue: Bottom Right (S) -->
+        <button class="pad blue-pad" id="blue" data-color="blue" data-key="S" aria-label="Blue Button (Key S)">
+          <span class="key-badge">S</span>
+          <div class="pad-shine"></div>
+        </button>
+
+        <!-- Center Hub -->
+        <div class="center-hub">
+          <div class="hub-bezel"></div>
+          <div class="hub-content">
+            <div class="hub-brand">SIMON</div>
+            
+            <div class="status-indicator-badge" id="status-badge">PRESS START</div>
+
+            <button class="action-btn start-btn" id="start-btn">
+              <span class="btn-glow"></span>
+              <span class="btn-text">START</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <!-- Strict Mode Toggle -->
+      <div class="control-group">
+        <span class="control-label">STRICT MODE</span>
+        <button class="toggle-btn" id="strict-toggle" role="switch" aria-checked="false">
+          <span class="toggle-indicator"></span>
+          <span class="toggle-text" id="strict-label">OFF</span>
+        </button>
+      </div>
+
+      <!-- Difficulty / Speed -->
+      <div class="control-group">
+        <span class="control-label">SPEED</span>
+        <div class="speed-selector">
+          <button class="speed-btn active" data-speed="classic">CLASSIC</button>
+          <button class="speed-btn" data-speed="fast">FAST</button>
+          <button class="speed-btn" data-speed="insane">INSANE</button>
+        </div>
+      </div>
+
+      <!-- Sound Mute -->
+      <div class="control-group">
+        <span class="control-label">SOUND</span>
+        <button class="icon-toggle-btn" id="mute-toggle" aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- How to Play / Instructions Modal Trigger & Hotkey info -->
+    <footer class="game-footer">
+      <div class="keyboard-hints">
+        <span>Controls: <strong>Click/Tap</strong> or use <strong>Q</strong>, <strong>W</strong>, <strong>A</strong>, <strong>S</strong> &bull; <strong>Space</strong> to Start</span>
+      </div>
+      <div class="footer-links">
+        <button class="text-link-btn" id="how-to-play-btn">How to Play</button>
+        <button class="text-link-btn" id="reset-high-score-btn">Reset High Score</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal for Instructions -->
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>HOW TO PLAY SIMON</h2>
+        <button class="modal-close-btn" id="modal-close-btn" aria-label="Close Instructions">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="rule-item">
+          <div class="rule-num">1</div>
+          <div class="rule-desc">
+            <strong>Watch & Listen:</strong> Simon lights up a color pad and plays a tone.
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num">2</div>
+          <div class="rule-desc">
+            <strong>Repeat the Pattern:</strong> Press the exact same sequence of colors in order.
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num">3</div>
+          <div class="rule-desc">
+            <strong>Progress:</strong> Each round Simon adds one new color to the sequence. The pace quickens as you advance!
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num">4</div>
+          <div class="rule-desc">
+            <strong>Modes:</strong> In <em>Normal Mode</em>, you have 3 lives to recover from mistakes. In <em>Strict Mode</em>, one misstep ends the game!
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="action-btn modal-ok-btn" id="modal-ok-btn">GOT IT, LET'S PLAY!</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
